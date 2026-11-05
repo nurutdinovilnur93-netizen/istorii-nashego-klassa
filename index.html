@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Истории нашего класса</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef0ff,#f8f9fc 55%,#e9f7f5);color:#20263a}
@@ -18,7 +17,7 @@ label{display:block;font-weight:bold;font-size:14px;margin:13px 0 7px}
 input,textarea,select{width:100%;padding:12px;border:1px solid #dfe2ee;border-radius:10px;font:inherit}
 textarea{min-height:115px;resize:vertical}
 button{border:0;border-radius:10px;padding:12px 17px;background:#6657e8;color:white;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.6}
+button:disabled{opacity:.6;cursor:wait}
 .hint,.meta{font-size:12px;color:#68718a}
 .notice{padding:12px 14px;background:#fff8df;border:1px solid #f2e4ae;border-radius:10px;color:#6d5a20;font-size:13px;line-height:1.5;margin-top:14px}
 .toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:20px 2px 14px}
@@ -31,9 +30,14 @@ button:disabled{opacity:.6}
 .story h3{margin:0 0 9px;font-size:19px}
 .story p{margin:0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .empty{text-align:center;color:#68718a;padding:35px 15px;background:#ffffff9c;border-radius:16px}
-#status{font-size:13px;line-height:1.5}
+.delete{background:#fff0f0;color:#b43b48;padding:8px 11px;font-size:12px}
+.actions{display:flex;justify-content:flex-end;margin-top:13px}
+#status,#loginStatus{font-size:13px;line-height:1.5}
 .error{color:#b43b48}
 .success{color:#28734b}
+.admin{border:1px solid #dcd8ff}
+.admin h2{color:#5145cd}
+#adminArea{display:none}
 footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 @media(max-width:560px){.panel,.story{padding:16px}.toolbar input{max-width:none}}
 </style>
@@ -46,6 +50,7 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 </header>
 
 <main>
+
 <section class="panel">
 <h2>✍️ Добавить историю</h2>
 <form id="storyForm">
@@ -73,10 +78,33 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 </div>
 
 <div class="notice">
-Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и другие личные данные.
+Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и чужие секреты.
 </div>
-<p id="status" role="status"></p>
+<p id="status"></p>
 </form>
+</section>
+
+<section class="panel admin">
+<h2>🔐 ADMIN ILNUR</h2>
+
+<div id="loginArea">
+<p>Вход только для администратора.</p>
+<form id="loginForm">
+<label for="email">Электронная почта</label>
+<input id="email" type="email" placeholder="Твоя почта" required>
+
+<label for="password">Пароль</label>
+<input id="password" type="password" placeholder="Пароль администратора" required>
+
+<button type="submit" id="loginButton" style="margin-top:14px">Войти в админ-панель</button>
+</form>
+<p id="loginStatus"></p>
+</div>
+
+<div id="adminArea">
+<p>👑 Ты вошёл как администратор!</p>
+<button id="logoutButton">Выйти из аккаунта</button>
+</div>
 </section>
 
 <div class="toolbar">
@@ -87,6 +115,7 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 <section id="stories" aria-live="polite">
 <div class="empty">Загружаем истории...</div>
 </section>
+
 </main>
 
 <footer>Истории нашего класса ❤️</footer>
@@ -94,23 +123,21 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 <script>
 const SUPABASE_URL = 'https://iluagtxeqfzzobrlpblq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IfQ0hxAPFjtJZ1d6RZhxbg_9VCgSejK';
-const API = SUPABASE_URL + '/rest/v1/stories';
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 const form = document.getElementById('storyForm');
 const list = document.getElementById('stories');
 const search = document.getElementById('search');
 const statusBox = document.getElementById('status');
-const submitButton = document.getElementById('submitButton');
+const loginForm = document.getElementById('loginForm');
+const loginStatus = document.getElementById('loginStatus');
 
 let stories = [];
-
-function apiHeaders(extra = {}) {
-  return {
-    apikey: SUPABASE_KEY,
-    Authorization: 'Bearer ' + SUPABASE_KEY,
-    ...extra
-  };
-}
+let isAdmin = false;
 
 function esc(value) {
   return String(value ?? '').replace(/[&<>"']/g, c => ({
@@ -122,9 +149,19 @@ function esc(value) {
   }[c]));
 }
 
-function showStatus(message, error = false) {
-  statusBox.textContent = message;
-  statusBox.className = error ? 'error' : 'success';
+function message(element, text, error=false) {
+  element.textContent = text;
+  element.className = error ? 'error' : 'success';
+}
+
+function updateAdminUI() {
+  document.getElementById('loginArea').style.display =
+    isAdmin ? 'none' : 'block';
+
+  document.getElementById('adminArea').style.display =
+    isAdmin ? 'block' : 'none';
+
+  render();
 }
 
 function render() {
@@ -153,30 +190,96 @@ function render() {
       <div class="meta" style="margin-top:13px">
         Автор: ${esc(s.author || 'Анонимно')}
       </div>
+      ${isAdmin ? `
+        <div class="actions">
+          <button class="delete" data-delete="${esc(s.id)}">🗑️ Удалить</button>
+        </div>
+      ` : ''}
     </article>
   `).join('');
 }
 
 async function loadStories() {
   try {
-    const response = await fetch(
-      API + '?select=id,title,author,category,content,created_at&order=created_at.desc',
-      {headers:apiHeaders()}
-    );
+    const {data,error} = await db
+      .from('stories')
+      .select('*')
+      .order('created_at',{ascending:false});
 
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
+    if (error) throw error;
 
-    stories = await response.json();
+    stories = data || [];
     render();
-  } catch (error) {
-    list.innerHTML = '<div class="empty">Не удалось загрузить истории. Проверь настройки Supabase.</div>';
-    showStatus('Ошибка загрузки: ' + error.message, true);
+  } catch(error) {
+    list.innerHTML = '<div class="empty">Не удалось загрузить истории.</div>';
+    message(statusBox,'Ошибка: '+error.message,true);
   }
 }
 
-form.addEventListener('submit', async event => {
+async function checkAdmin(session) {
+  isAdmin = !!(
+    session &&
+    session.user &&
+    session.user.app_metadata &&
+    session.user.app_metadata.role === 'admin'
+  );
+  updateAdminUI();
+}
+
+loginForm.addEventListener('submit',async event => {
+  event.preventDefault();
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  const button = document.getElementById('loginButton');
+  button.disabled = true;
+  message(loginStatus,'Проверяем данные...');
+
+  try {
+    const {data,error} = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    await checkAdmin(data.session);
+
+    if (!isAdmin) {
+      await db.auth.signOut();
+      isAdmin = false;
+      updateAdminUI();
+      throw new Error('У этого аккаунта нет прав администратора.');
+    }
+
+    message(loginStatus,'Добро пожаловать, администратор!');
+    loginForm.reset();
+
+  } catch(error) {
+    message(loginStatus,error.message,true);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+document.getElementById('logoutButton').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  isAdmin = false;
+  updateAdminUI();
+  message(loginStatus,'Ты вышел из админ-панели.');
+});
+
+db.auth.onAuthStateChange(async(event,session)=>{
+  await checkAdmin(session);
+});
+
+async function restoreSession() {
+  const {data} = await db.auth.getSession();
+  await checkAdmin(data.session);
+}
+
+form.addEventListener('submit',async event=>{
   event.preventDefault();
 
   const title = document.getElementById('title').value.trim();
@@ -186,43 +289,58 @@ form.addEventListener('submit', async event => {
 
   if (!title || !content) return;
 
-  submitButton.disabled = true;
-  showStatus('Публикуем историю...');
+  const button = document.getElementById('submitButton');
+  button.disabled = true;
+  message(statusBox,'Публикуем историю...');
 
   try {
-    const response = await fetch(API, {
-      method:'POST',
-      headers:apiHeaders({
-        'Content-Type':'application/json',
-        'Prefer':'return=minimal'
-      }),
-      body:JSON.stringify({
-        title,
-        content,
-        author,
-        category
-      })
+    const {error} = await db.from('stories').insert({
+      title,
+      content,
+      author,
+      category
     });
 
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
+    if (error) throw error;
 
     form.reset();
-    showStatus('История опубликована! ❤️');
+    message(statusBox,'История опубликована! ❤️');
     await loadStories();
 
-  } catch (error) {
-    showStatus('Ошибка публикации: ' + error.message, true);
+  } catch(error) {
+    message(statusBox,'Ошибка публикации: '+error.message,true);
   } finally {
-    submitButton.disabled = false;
+    button.disabled = false;
   }
 });
 
-search.addEventListener('input', render);
+list.addEventListener('click',async event=>{
+  const id = event.target.dataset.delete;
+  if (!id || !isAdmin) return;
 
+  if (!confirm('Точно удалить эту историю?')) return;
+
+  try {
+    const {error} = await db
+      .from('stories')
+      .delete()
+      .eq('id',id);
+
+    if (error) throw error;
+
+    message(loginStatus,'История удалена.');
+    await loadStories();
+
+  } catch(error) {
+    message(loginStatus,'Ошибка удаления: '+error.message,true);
+  }
+});
+
+search.addEventListener('input',render);
+
+restoreSession();
 loadStories();
-setInterval(loadStories, 10000);
+setInterval(loadStories,10000);
 </script>
 </body>
 </html>
