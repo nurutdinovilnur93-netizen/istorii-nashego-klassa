@@ -1,48 +1,228 @@
 <!DOCTYPE html>
-<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Истории нашего класса</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef0ff,#f8f9fc 55%,#e9f7f5);color:#20263a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef0ff,#f8f9fc 55%,#e9f7f5);color:#20263a}
 header{text-align:center;padding:42px 16px 34px;background:linear-gradient(120deg,#5145cd,#8174f2);color:white}
-h1{margin:0 0 10px;font-size:clamp(27px,5vw,42px)}header p{margin:0;color:#eeedff}
-main{width:min(900px,calc(100% - 28px));margin:26px auto 50px}.panel,.story{background:white;border:1px solid #e7e9f2;border-radius:18px;box-shadow:0 8px 28px #27305a0c}
-.panel{padding:22px;margin-bottom:22px}h2{margin:0 0 16px}label{display:block;font-weight:bold;font-size:14px;margin:13px 0 7px}
-input,textarea,select{width:100%;padding:12px;border:1px solid #dfe2ee;border-radius:10px;font:inherit}textarea{min-height:115px;resize:vertical}
+h1{margin:0 0 10px;font-size:clamp(27px,5vw,42px)}
+header p{margin:0;color:#eeedff}
+main{width:min(900px,calc(100% - 28px));margin:26px auto 50px}
+.panel,.story{background:white;border:1px solid #e7e9f2;border-radius:18px;box-shadow:0 8px 28px #27305a0c}
+.panel{padding:22px;margin-bottom:22px}
+h2{margin:0 0 16px}
+label{display:block;font-weight:bold;font-size:14px;margin:13px 0 7px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #dfe2ee;border-radius:10px;font:inherit}
+textarea{min-height:115px;resize:vertical}
 button{border:0;border-radius:10px;padding:12px 17px;background:#6657e8;color:white;font-weight:bold;cursor:pointer}
-.hint,.meta{font-size:12px;color:#68718a}.notice{padding:12px 14px;background:#fff8df;border:1px solid #f2e4ae;border-radius:10px;color:#6d5a20;font-size:13px;line-height:1.5;margin-top:14px}
-.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:20px 2px 14px}.toolbar h2{margin:0}.toolbar input{max-width:280px}
-#stories{display:grid;gap:14px}.story{padding:18px 20px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+button:disabled{opacity:.6}
+.hint,.meta{font-size:12px;color:#68718a}
+.notice{padding:12px 14px;background:#fff8df;border:1px solid #f2e4ae;border-radius:10px;color:#6d5a20;font-size:13px;line-height:1.5;margin-top:14px}
+.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:20px 2px 14px}
+.toolbar h2{margin:0}
+.toolbar input{max-width:280px}
+#stories{display:grid;gap:14px}
+.story{padding:18px 20px}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
 .tag{background:#f0efff;color:#574bd0;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
-.story h3{margin:0 0 9px;font-size:19px}.story p{margin:0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.story h3{margin:0 0 9px;font-size:19px}
+.story p{margin:0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .empty{text-align:center;color:#68718a;padding:35px 15px;background:#ffffff9c;border-radius:16px}
-.delete{background:#fff0f0;color:#b43b48;padding:8px 11px;font-size:12px}.actions{display:flex;justify-content:flex-end;margin-top:13px}
+#status{font-size:13px;line-height:1.5}
+.error{color:#b43b48}
+.success{color:#28734b}
 footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 @media(max-width:560px){.panel,.story{padding:16px}.toolbar input{max-width:none}}
-</style></head><body>
-<header><h1>📚 Истории нашего класса</h1><p>Добрые воспоминания, смешные случаи и классные моменты</p></header>
+</style>
+</head>
+<body>
+
+<header>
+<h1>📚 Истории нашего класса</h1>
+<p>Добрые воспоминания, смешные случаи и классные моменты</p>
+</header>
+
 <main>
-<section class="panel"><h2>✍️ Добавить историю</h2>
+<section class="panel">
+<h2>✍️ Добавить историю</h2>
 <form id="storyForm">
-<label for="title">Название истории</label><input id="title" maxlength="70" placeholder="Например: Самый смешной урок" required>
-<label for="author">Кто добавляет? (необязательно)</label><input id="author" maxlength="30" placeholder="Можно оставить пустым">
-<label for="category">Категория</label><select id="category"><option>Смешной случай</option><option>Школьное воспоминание</option><option>Победа и достижение</option><option>Дружба</option><option>Другое</option></select>
-<label for="body">Текст истории</label><textarea id="body" maxlength="1200" placeholder="Расскажи, что произошло..." required></textarea>
-<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px"><button type="submit">Опубликовать историю</button><span class="hint">До 1200 символов</span></div>
-<div class="notice">Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и другие личные данные. Не выкладывайте чужие секреты или фото без разрешения.</div>
-</form></section>
-<div class="toolbar"><h2>🌟 Истории класса</h2><input id="search" placeholder="Поиск по историям..."></div>
-<section id="stories" aria-live="polite"></section></main>
-<footer>Демо-сайт сохраняет истории только в этом браузере на этом устройстве.</footer>
+<label for="title">Название истории</label>
+<input id="title" maxlength="70" placeholder="Например: Самый смешной урок" required>
+
+<label for="author">Кто добавляет? (необязательно)</label>
+<input id="author" maxlength="30" placeholder="Можно оставить пустым">
+
+<label for="category">Категория</label>
+<select id="category">
+<option>Смешной случай</option>
+<option>Школьное воспоминание</option>
+<option>Победа и достижение</option>
+<option>Дружба</option>
+<option>Другое</option>
+</select>
+
+<label for="body">Текст истории</label>
+<textarea id="body" maxlength="1200" placeholder="Расскажи, что произошло..." required></textarea>
+
+<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px">
+<button id="submitButton" type="submit">Опубликовать историю</button>
+<span class="hint">До 1200 символов</span>
+</div>
+
+<div class="notice">
+Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и другие личные данные.
+</div>
+<p id="status" role="status"></p>
+</form>
+</section>
+
+<div class="toolbar">
+<h2>🌟 Истории класса</h2>
+<input id="search" placeholder="Поиск по историям...">
+</div>
+
+<section id="stories" aria-live="polite">
+<div class="empty">Загружаем истории...</div>
+</section>
+</main>
+
+<footer>Истории нашего класса ❤️</footer>
+
 <script>
-const KEY='classStories_v1',form=document.getElementById('storyForm'),list=document.getElementById('stories'),search=document.getElementById('search');
-let stories=[];try{stories=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(stories))stories=[]}catch{stories=[]}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function render(){let q=search.value.trim().toLowerCase(),shown=stories.filter(s=>(s.title+' '+s.body+' '+s.author+' '+s.category).toLowerCase().includes(q));
-if(!shown.length){list.innerHTML='<div class="empty">'+(stories.length?'Ничего не найдено. Попробуй другой запрос.':'Пока историй нет. Добавь первую!')+'</div>';return}
-list.innerHTML=shown.map(s=>`<article class="story"><div class="top"><span class="tag">${esc(s.category)}</span><span class="meta">${esc(s.date)}</span></div><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p><div class="meta" style="margin-top:13px">Автор: ${esc(s.author||'Анонимно')}</div><div class="actions"><button class="delete" data-delete="${s.id}">Удалить</button></div></article>`).join('')}
-function save(){localStorage.setItem(KEY,JSON.stringify(stories));render()}
-form.addEventListener('submit',e=>{e.preventDefault();let title=document.getElementById('title').value.trim(),body=document.getElementById('body').value.trim(),author=document.getElementById('author').value.trim();if(!title||!body)return;
-stories.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title,body,author,category:document.getElementById('category').value,date:new Date().toLocaleDateString('ru-RU')});save();form.reset();document.getElementById('title').focus()});
-list.addEventListener('click',e=>{let id=e.target.dataset.delete;if(!id)return;if(confirm('Удалить эту историю?')){stories=stories.filter(s=>s.id!==id);save()}});
-search.addEventListener('input',render);render();
-</script></body></html>
+const SUPABASE_URL = 'https://iluagtxeqfzzobrlpblq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_IfQ0hxAPFjtJZ1d6RZhxbg_9VCgSejK';
+const API = SUPABASE_URL + '/rest/v1/stories';
+
+const form = document.getElementById('storyForm');
+const list = document.getElementById('stories');
+const search = document.getElementById('search');
+const statusBox = document.getElementById('status');
+const submitButton = document.getElementById('submitButton');
+
+let stories = [];
+
+function apiHeaders(extra = {}) {
+  return {
+    apikey: SUPABASE_KEY,
+    Authorization: 'Bearer ' + SUPABASE_KEY,
+    ...extra
+  };
+}
+
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+function showStatus(message, error = false) {
+  statusBox.textContent = message;
+  statusBox.className = error ? 'error' : 'success';
+}
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+
+  const shown = stories.filter(s =>
+    [s.title,s.content,s.author,s.category]
+      .join(' ').toLowerCase().includes(q)
+  );
+
+  if (!shown.length) {
+    list.innerHTML = '<div class="empty">' +
+      (stories.length ? 'Ничего не найдено.' : 'Пока историй нет. Добавь первую!') +
+      '</div>';
+    return;
+  }
+
+  list.innerHTML = shown.map(s => `
+    <article class="story">
+      <div class="top">
+        <span class="tag">${esc(s.category)}</span>
+        <span class="meta">${esc(new Date(s.created_at).toLocaleString('ru-RU'))}</span>
+      </div>
+      <h3>${esc(s.title)}</h3>
+      <p>${esc(s.content)}</p>
+      <div class="meta" style="margin-top:13px">
+        Автор: ${esc(s.author || 'Анонимно')}
+      </div>
+    </article>
+  `).join('');
+}
+
+async function loadStories() {
+  try {
+    const response = await fetch(
+      API + '?select=id,title,author,category,content,created_at&order=created_at.desc',
+      {headers:apiHeaders()}
+    );
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    stories = await response.json();
+    render();
+  } catch (error) {
+    list.innerHTML = '<div class="empty">Не удалось загрузить истории. Проверь настройки Supabase.</div>';
+    showStatus('Ошибка загрузки: ' + error.message, true);
+  }
+}
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const title = document.getElementById('title').value.trim();
+  const content = document.getElementById('body').value.trim();
+  const author = document.getElementById('author').value.trim();
+  const category = document.getElementById('category').value;
+
+  if (!title || !content) return;
+
+  submitButton.disabled = true;
+  showStatus('Публикуем историю...');
+
+  try {
+    const response = await fetch(API, {
+      method:'POST',
+      headers:apiHeaders({
+        'Content-Type':'application/json',
+        'Prefer':'return=minimal'
+      }),
+      body:JSON.stringify({
+        title,
+        content,
+        author,
+        category
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    form.reset();
+    showStatus('История опубликована! ❤️');
+    await loadStories();
+
+  } catch (error) {
+    showStatus('Ошибка публикации: ' + error.message, true);
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+search.addEventListener('input', render);
+
+loadStories();
+setInterval(loadStories, 10000);
+</script>
+</body>
+</html>
