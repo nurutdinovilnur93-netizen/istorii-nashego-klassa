@@ -4,83 +4,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b16">
 <title>Истории нашего класса</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef0ff,#f8f9fc 55%,#e9f7f5);color:#20263a}
-header{text-align:center;padding:42px 16px 34px;background:linear-gradient(120deg,#5145cd,#8174f2);color:white}
-h1{margin:0 0 10px;font-size:clamp(27px,5vw,42px)}
-header p{margin:0;color:#eeedff}
-main{width:min(900px,calc(100% - 28px));margin:26px auto 50px}
-.panel,.story{background:white;border:1px solid #e7e9f2;border-radius:18px;box-shadow:0 8px 28px #27305a0c}
-.panel{padding:22px;margin-bottom:22px}
-h2{margin:0 0 16px}
-label{display:block;font-weight:bold;font-size:14px;margin:13px 0 7px}
-input,textarea,select{width:100%;padding:12px;border:1px solid #dfe2ee;border-radius:10px;font:inherit}
-textarea{min-height:100px;resize:vertical}
-button{border:0;border-radius:10px;padding:12px 17px;background:#6657e8;color:white;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.6;cursor:wait}
-.hint,.meta{font-size:12px;color:#68718a}
-.notice{padding:12px 14px;background:#fff8df;border:1px solid #f2e4ae;border-radius:10px;color:#6d5a20;font-size:13px;line-height:1.5;margin-top:14px}
-.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:20px 2px 14px}
+:root{--bg:#090b16;--panel:#171a2d;--line:#ffffff13;--purple:#8b76ff;--pink:#e879f9;--text:#f5f3ff;--muted:#999bb8}
+body{margin:0;background:radial-gradient(ellipse at 10% 0%,#30205e 0,transparent 35%),radial-gradient(ellipse at 90% 30%,#17264b 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;min-height:100vh}
+*{scrollbar-color:#5145a0 #101326;scrollbar-width:thin}
+header{padding:65px 18px 55px;text-align:center;background:linear-gradient(130deg,#44318cbb,#20234dbb);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+header:after{content:"";position:absolute;width:300px;height:300px;background:#9b75ff;filter:blur(130px);opacity:.2;top:-180px;left:35%}
+header h1{position:relative;font-size:clamp(30px,6vw,52px);margin:0 0 12px;font-weight:900;letter-spacing:-1.5px}
+header p{position:relative;color:#d4ceff;margin:0;font-size:15px}
+main{width:min(950px,calc(100% - 28px));margin:30px auto 60px}
+.panel,.story{background:#171a2de8;border:1px solid var(--line);border-radius:21px;box-shadow:0 15px 45px #0004;backdrop-filter:blur(15px)}
+.panel{padding:24px;margin-bottom:22px}
+h2{font-size:20px;margin:0 0 20px;letter-spacing:-.4px}
+label{display:block;color:#c8c4e6;font-size:13px;font-weight:bold;margin:15px 0 8px}
+input,textarea,select{width:100%;padding:14px 15px;border:1px solid #ffffff18;border-radius:12px;background:#101326;color:white;font:inherit;outline:none;transition:.2s}
+input::placeholder,textarea::placeholder{color:#777b9b}
+input:focus,textarea:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 3px #8875ff20}
+textarea{min-height:105px;resize:vertical}
+button{border:0;border-radius:12px;padding:13px 18px;background:linear-gradient(135deg,#806aff,#a16bff);color:white;font-weight:800;cursor:pointer;transition:.2s;box-shadow:0 6px 20px #806aff25}
+button:hover{transform:translateY(-2px);filter:brightness(1.1)}
+button:active{transform:scale(.97)}
+button:disabled{opacity:.55;cursor:wait;transform:none}
+.notice{padding:13px;background:#a98b2515;border:1px solid #d9b94b35;border-radius:12px;color:#e9d99b;font-size:13px;line-height:1.6;margin-top:15px}
+.hint,.meta{font-size:12px;color:var(--muted)}
+.toolbar{display:flex;gap:13px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:28px 2px 17px}
 .toolbar h2{margin:0}
-.toolbar input{max-width:280px}
-#stories{display:grid;gap:14px}
-.story{padding:18px 20px}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
-.tag{background:#f0efff;color:#574bd0;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
-.story h3{margin:0 0 9px;font-size:19px}
-.story p{margin:0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.empty{text-align:center;color:#68718a;padding:35px 15px;background:#ffffff9c;border-radius:16px}
-.delete{background:#fff0f0;color:#b43b48;padding:8px 11px;font-size:12px}
-.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:13px;flex-wrap:wrap}
-#status,#loginStatus,#chatStatus{font-size:13px;line-height:1.5}
-.error{color:#b43b48}
-.success{color:#28734b}
-.admin{border:1px solid #dcd8ff}
-.admin h2{color:#5145cd}
+.toolbar input{max-width:290px}
+#stories{display:grid;gap:15px}
+.story{padding:21px;animation:appear .35s ease both;transition:.2s}
+.story:hover{border-color:#8875ff60;transform:translateY(-2px)}
+@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}
+.tag{background:#8875ff20;color:#b8aaff;border:1px solid #8875ff30;padding:6px 11px;border-radius:30px;font-size:11px;font-weight:800}
+.story h3{font-size:20px;margin:0 0 11px}
+.story p{margin:0;line-height:1.75;color:#dedcf0;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{text-align:center;color:var(--muted);padding:30px 15px;background:#ffffff08;border:1px dashed var(--line);border-radius:15px}
+.actions{display:flex;gap:9px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap}
+.like{background:#e94e8520;color:#ff8caf;border:1px solid #e94e8540;box-shadow:none}
+.like.liked{background:#d94b79;color:white}
+.delete{background:#e44d6820;color:#ff8d9e;border:1px solid #e44d6835;padding:9px 13px;font-size:12px;box-shadow:none}
+.admin{border-color:#8875ff60;background:linear-gradient(145deg,#211d42e8,#15182be8)}
+.admin h2{color:#b8aaff}
 #adminArea{display:none}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
-.stat{background:#f3f2ff;border-radius:12px;padding:15px;text-align:center}
-.stat strong{display:block;font-size:25px;color:#5145cd;margin-bottom:5px}
-.stat span{font-size:12px;color:#68718a}
-.like{background:#fff0f3;color:#d34b68;padding:9px 12px}
-.like.liked{background:#d34b68;color:white}
-.chat-list{display:grid;gap:10px;max-height:380px;overflow-y:auto;margin:16px 0}
-.chat-message{background:#f5f5fc;padding:12px;border-radius:12px;overflow-wrap:anywhere}
-.chat-message strong{font-size:13px;color:#5145cd}
-.chat-message p{margin:7px 0;white-space:pre-wrap;line-height:1.5}
-.chat-message small{font-size:11px;color:#68718a}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.stat{background:#8875ff13;border:1px solid var(--line);border-radius:14px;padding:16px 8px;text-align:center}
+.stat strong{display:block;font-size:25px;color:#b8aaff;margin-bottom:5px}
+.stat span{font-size:12px;color:var(--muted)}
+.chat-list{display:grid;gap:11px;max-height:400px;overflow-y:auto;margin-top:17px}
+.chat-message{background:#ffffff08;border:1px solid var(--line);border-radius:14px;padding:14px;overflow-wrap:anywhere}
+.chat-message strong{color:#b8aaff;font-size:13px}
+.chat-message p{margin:8px 0;line-height:1.6;white-space:pre-wrap}
+.chat-message small{font-size:11px;color:var(--muted)}
 .chat-message .delete{float:right}
 .top-list{display:grid;gap:10px}
-.top-item{display:flex;align-items:center;gap:12px;background:#f5f5fc;padding:12px;border-radius:12px}
-.rank{font-size:22px;font-weight:bold;color:#6657e8;min-width:35px}
+.top-item{display:flex;align-items:center;gap:13px;background:#ffffff08;border:1px solid var(--line);border-radius:13px;padding:13px;transition:.2s}
+.top-item:hover{background:#8875ff16;transform:translateX(3px)}
+.rank{font-size:22px;font-weight:900;color:#b8aaff;min-width:35px}
 .top-item div{min-width:0}
 .top-item strong{display:block;overflow-wrap:anywhere}
-.top-item small{color:#68718a}
-footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
-@media(max-width:560px){.panel,.story{padding:16px}.toolbar input{max-width:none}.stats{grid-template-columns:1fr 1fr 1fr}.stat{padding:10px 5px}}
+.top-item small{color:var(--muted)}
+.error{color:#ff8292;font-size:13px}
+.success{color:#72e5a7;font-size:13px}
+footer{text-align:center;color:#777b9b;font-size:12px;padding:25px 15px 35px;border-top:1px solid var(--line)}
+select option{background:#171a2d;color:white}
+@media(max-width:560px){header{padding:48px 15px 42px}main{margin-top:20px}.panel,.story{padding:16px;border-radius:17px}.toolbar input{max-width:none}.stats{gap:6px}.stat{padding:12px 3px}.story h3{font-size:18px}}
 </style>
 </head>
 <body>
-
 <header>
 <h1>📚 Истории нашего класса</h1>
-<p>Добрые воспоминания, смешные случаи и классные моменты</p>
+<p>Наши воспоминания. Наша дружба. Наша история.</p>
 </header>
 
 <main>
-
 <section class="panel">
-<h2>✍️ Добавить историю</h2>
+<h2>✍️ Поделись историей</h2>
 <form id="storyForm">
 <label for="title">Название истории</label>
 <input id="title" maxlength="70" placeholder="Например: Самый смешной урок" required>
-
-<label for="author">Кто добавляет? (необязательно)</label>
+<label for="author">Твоё имя</label>
 <input id="author" maxlength="30" placeholder="Можно оставить пустым">
-
 <label for="category">Категория</label>
 <select id="category">
 <option>Смешной случай</option>
@@ -89,40 +96,34 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 <option>Дружба</option>
 <option>Другое</option>
 </select>
-
 <label for="body">Текст истории</label>
 <textarea id="body" maxlength="1200" placeholder="Расскажи, что произошло..." required></textarea>
-
-<button id="submitButton" type="submit" style="margin-top:14px">Опубликовать историю</button>
-<div class="notice">Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и чужие секреты.</div>
+<button id="submitButton" type="submit" style="margin-top:14px">🚀 Опубликовать историю</button>
+<div class="notice">💜 Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и чужие секреты.</div>
 <p id="status"></p>
 </form>
 </section>
 
 <section class="panel">
 <h2>🏆 ТОП-10 историй</h2>
-<div id="topStories" class="top-list">
-<div class="empty">Загружаем рейтинг...</div>
-</div>
+<div id="topStories" class="top-list"><div class="empty">Загружаем рейтинг...</div></div>
 </section>
 
 <section class="panel">
-<h2>💬 Общий чат класса</h2>
+<h2>💬 Чат нашего класса</h2>
 <form id="chatForm">
 <label for="chatAuthor">Твоё имя</label>
 <input id="chatAuthor" maxlength="30" placeholder="Например, Ильнур" required>
 <label for="chatText">Сообщение</label>
 <textarea id="chatText" maxlength="1000" placeholder="Напиши что-нибудь классу..." required></textarea>
-<button id="chatButton" type="submit" style="margin-top:12px">Отправить сообщение</button>
+<button id="chatButton" type="submit" style="margin-top:12px">Отправить сообщение 💬</button>
 <p id="chatStatus"></p>
 </form>
-<div id="chatMessages" class="chat-list">
-<div class="empty">Загружаем чат...</div>
-</div>
+<div id="chatMessages" class="chat-list"><div class="empty">Загружаем чат...</div></div>
 </section>
 
 <section class="panel admin">
-<h2>🔐 ADMIN ILNUR</h2>
+<h2>👑 ADMIN ILNUR</h2>
 <div id="loginArea">
 <p>Вход только для администратора.</p>
 <form id="loginForm">
@@ -134,42 +135,33 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 </form>
 <p id="loginStatus"></p>
 </div>
-
 <div id="adminArea">
-<p>👑 Ты вошёл как администратор!</p>
+<p>👑 Добро пожаловать, администратор!</p>
 <div class="stats">
 <div class="stat"><strong id="storyCount">0</strong><span>Историй</span></div>
 <div class="stat"><strong id="messageCount">0</strong><span>Сообщений</span></div>
 <div class="stat"><strong id="likeCount">0</strong><span>Лайков</span></div>
 </div>
-<p>Теперь ты можешь удалять любые истории и сообщения.</p>
+<p>Управляй историями и сообщениями класса.</p>
 <button id="logoutButton">Выйти из аккаунта</button>
 </div>
 </section>
 
 <div class="toolbar">
 <h2>🌟 Истории класса</h2>
-<input id="search" placeholder="Поиск по историям...">
+<input id="search" placeholder="🔎 Поиск по историям...">
 </div>
-<section id="stories" aria-live="polite">
-<div class="empty">Загружаем истории...</div>
-</section>
-
+<section id="stories" aria-live="polite"><div class="empty">Загружаем истории...</div></section>
 </main>
-<footer>Истории нашего класса ❤️</footer>
+<footer>Сделано с ❤️ для нашего класса</footer>
 
 <script>
 const SUPABASE_URL='https://iluagtxeqfzzobrlpblq.supabase.co';
 const SUPABASE_KEY='sb_publishable_IfQ0hxAPFjtJZ1d6RZhxbg_9VCgSejK';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
 const $=id=>document.getElementById(id);
-let stories=[];
-let messages=[];
-let likes={};
-let isAdmin=false;
+let stories=[],messages=[],likes={},isAdmin=false;
 
-// Уникальный идентификатор браузера для лайков
 let voterId=localStorage.getItem('class_voter_id');
 if(!voterId){
  voterId=crypto.randomUUID();
@@ -177,22 +169,18 @@ if(!voterId){
 }
 
 function esc(value){
- return String(value??'').replace(/[&<>"']/g,c=>({
- '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
- }[c]));
+ return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-
 function message(element,text,error=false){
  element.textContent=text;
  element.className=error?'error':'success';
 }
-
 function updateAdminUI(){
  $('loginArea').style.display=isAdmin?'none':'block';
  $('adminArea').style.display=isAdmin?'block':'none';
  render();
+ renderMessages();
 }
-
 async function checkAdmin(session){
  isAdmin=!!(session?.user?.app_metadata?.role==='admin');
  updateAdminUI();
@@ -200,35 +188,20 @@ async function checkAdmin(session){
 
 function render(){
  const q=$('search').value.trim().toLowerCase();
- const shown=stories.filter(s=>
- [s.title,s.content,s.author,s.category].join(' ').toLowerCase().includes(q)
- );
-
+ const shown=stories.filter(s=>[s.title,s.content,s.author,s.category].join(' ').toLowerCase().includes(q));
  if(!shown.length){
- $('stories').innerHTML='<div class="empty">'+
- (stories.length?'Ничего не найдено.':'Пока историй нет. Добавь первую!')+
- '</div>';
+ $('stories').innerHTML='<div class="empty">'+(stories.length?'Ничего не найдено.':'Пока историй нет. Добавь первую!')+'</div>';
  }else{
  $('stories').innerHTML=shown.map(s=>{
- const id=String(s.id);
- const count=likes[id]?.count||0;
- const liked=likes[id]?.liked||false;
- return `
- <article class="story">
- <div class="top">
- <span class="tag">${esc(s.category)}</span>
- <span class="meta">${esc(new Date(s.created_at).toLocaleString('ru-RU'))}</span>
- </div>
- <h3>${esc(s.title)}</h3>
- <p>${esc(s.content)}</p>
+ const id=String(s.id),count=likes[id]?.count||0,liked=likes[id]?.liked||false;
+ return `<article class="story">
+ <div class="top"><span class="tag">${esc(s.category)}</span><span class="meta">${esc(new Date(s.created_at).toLocaleString('ru-RU'))}</span></div>
+ <h3>${esc(s.title)}</h3><p>${esc(s.content)}</p>
  <div class="meta" style="margin-top:13px">Автор: ${esc(s.author||'Анонимно')}</div>
  <div class="actions">
- <button class="like ${liked?'liked':''}" data-like="${esc(id)}" ${liked?'disabled':''}>
- ❤️ ${count}
- </button>
+ <button class="like ${liked?'liked':''}" data-like="${esc(id)}" ${liked?'disabled':''}>❤️ ${count}</button>
  ${isAdmin?`<button class="delete" data-delete-story="${esc(id)}">🗑️ Удалить</button>`:''}
- </div>
- </article>`;
+ </div></article>`;
  }).join('');
  }
  renderTop();
@@ -236,51 +209,18 @@ function render(){
 }
 
 function renderTop(){
- const sorted=[...stories].sort((a,b)=>
- (likes[String(b.id)]?.count||0)-(likes[String(a.id)]?.count||0)
- ).slice(0,10);
-
- if(!sorted.length){
- $('topStories').innerHTML='<div class="empty">Пока нет историй.</div>';
- return;
- }
-
- $('topStories').innerHTML=sorted.map((s,i)=>`
- <div class="top-item">
- <span class="rank">${i+1}</span>
- <div>
- <strong>${esc(s.title)}</strong>
- <small>❤️ ${likes[String(s.id)]?.count||0} лайков</small>
- </div>
- </div>
- `).join('');
+ const sorted=[...stories].sort((a,b)=>(likes[String(b.id)]?.count||0)-(likes[String(a.id)]?.count||0)).slice(0,10);
+ if(!sorted.length){$('topStories').innerHTML='<div class="empty">Пока нет историй.</div>';return;}
+ $('topStories').innerHTML=sorted.map((s,i)=>`<div class="top-item"><span class="rank">${i+1}</span><div><strong>${esc(s.title)}</strong><small>❤️ ${likes[String(s.id)]?.count||0} лайков</small></div></div>`).join('');
 }
-
 function updateStats(){
  $('storyCount').textContent=stories.length;
  $('messageCount').textContent=messages.length;
  $('likeCount').textContent=Object.values(likes).reduce((sum,x)=>sum+x.count,0);
 }
-
-async function loadStories(){
- const {data,error}=await db.from('stories').select('*').order('created_at',{ascending:false});
- if(error){
- $('stories').innerHTML='<div class="empty">Не удалось загрузить истории.</div>';
- message($('status'),'Ошибка: '+error.message,true);
- return;
- }
- stories=data||[];
- await loadLikes();
- render();
-}
-
 async function loadLikes(){
  const {data,error}=await db.from('story_likes').select('story_id,voter_id');
- if(error){
- console.error('Ошибка лайков:',error.message);
- likes={};
- return;
- }
+ if(error){console.error('Лайки:',error.message);likes={};return;}
  likes={};
  (data||[]).forEach(row=>{
  const id=String(row.story_id);
@@ -289,177 +229,100 @@ async function loadLikes(){
  if(row.voter_id===voterId)likes[id].liked=true;
  });
 }
-
-async function addLike(id){
- const current=likes[id];
- if(current?.liked)return;
- const button=document.querySelector(`[data-like="${CSS.escape(id)}"]`);
- if(button)button.disabled=true;
-
- const {error}=await db.from('story_likes').upsert(
- {story_id:id,voter_id:voterId},
- {onConflict:'story_id,voter_id',ignoreDuplicates:true}
- );
-
- if(error){
- alert('Не удалось поставить лайк: '+error.message);
- if(button)button.disabled=false;
- return;
- }
+async function loadStories(){
+ const {data,error}=await db.from('stories').select('*').order('created_at',{ascending:false});
+ if(error){$('stories').innerHTML='<div class="empty">Не удалось загрузить истории.</div>';message($('status'),'Ошибка: '+error.message,true);return;}
+ stories=data||[];
  await loadLikes();
  render();
 }
-
+async function addLike(id){
+ if(likes[id]?.liked)return;
+ const button=document.querySelector(`[data-like="${CSS.escape(id)}"]`);
+ if(button)button.disabled=true;
+ const {error}=await db.from('story_likes').upsert({story_id:id,voter_id:voterId},{onConflict:'story_id,voter_id',ignoreDuplicates:true});
+ if(error){alert('Не удалось поставить лайк: '+error.message);if(button)button.disabled=false;return;}
+ await loadLikes();render();
+}
 $('stories').addEventListener('click',async event=>{
  const likeId=event.target.closest('[data-like]')?.dataset.like;
  if(likeId){await addLike(likeId);return;}
-
  const id=event.target.closest('[data-delete-story]')?.dataset.deleteStory;
  if(!id||!isAdmin)return;
  if(!confirm('Точно удалить эту историю?'))return;
-
  const {error}=await db.from('stories').delete().eq('id',id);
  if(error){message($('loginStatus'),'Ошибка удаления: '+error.message,true);return;}
  message($('loginStatus'),'История удалена.');
  await loadStories();
 });
-
 $('storyForm').addEventListener('submit',async event=>{
  event.preventDefault();
- const title=$('title').value.trim();
- const content=$('body').value.trim();
- const author=$('author').value.trim();
- const category=$('category').value;
+ const title=$('title').value.trim(),content=$('body').value.trim(),author=$('author').value.trim(),category=$('category').value;
  if(!title||!content)return;
-
- $('submitButton').disabled=true;
- message($('status'),'Публикуем историю...');
-
+ $('submitButton').disabled=true;message($('status'),'Публикуем историю...');
  const {error}=await db.from('stories').insert({title,content,author,category});
- if(error){
- message($('status'),'Ошибка публикации: '+error.message,true);
- }else{
- $('storyForm').reset();
- message($('status'),'История опубликована! ❤️');
- await loadStories();
- }
+ if(error)message($('status'),'Ошибка публикации: '+error.message,true);
+ else{$('storyForm').reset();message($('status'),'История опубликована! ❤️');await loadStories();}
  $('submitButton').disabled=false;
 });
 
 // ЧАТ
 async function loadMessages(){
  const {data,error}=await db.from('messages').select('*').order('created_at',{ascending:false}).limit(100);
- if(error){
- $('chatMessages').innerHTML='<div class="empty">Не удалось загрузить чат.</div>';
- console.error(error.message);
- return;
- }
- messages=data||[];
- renderMessages();
- updateStats();
+ if(error){$('chatMessages').innerHTML='<div class="empty">Не удалось загрузить чат.</div>';console.error(error.message);return;}
+ messages=data||[];renderMessages();updateStats();
 }
-
 function renderMessages(){
- if(!messages.length){
- $('chatMessages').innerHTML='<div class="empty">Пока сообщений нет. Напиши первым!</div>';
- return;
- }
-
- $('chatMessages').innerHTML=messages.map(m=>`
- <div class="chat-message">
+ if(!messages.length){$('chatMessages').innerHTML='<div class="empty">Пока сообщений нет. Напиши первым!</div>';return;}
+ $('chatMessages').innerHTML=messages.map(m=>`<div class="chat-message">
  ${isAdmin?`<button class="delete" data-delete-message="${esc(m.id)}">Удалить</button>`:''}
- <strong>${esc(m.author)}</strong>
- <p>${esc(m.content)}</p>
- <small>${esc(new Date(m.created_at).toLocaleString('ru-RU'))}</small>
- </div>
- `).join('');
+ <strong>${esc(m.author)}</strong><p>${esc(m.content)}</p><small>${esc(new Date(m.created_at).toLocaleString('ru-RU'))}</small>
+ </div>`).join('');
 }
-
 $('chatForm').addEventListener('submit',async event=>{
  event.preventDefault();
- const author=$('chatAuthor').value.trim();
- const content=$('chatText').value.trim();
+ const author=$('chatAuthor').value.trim(),content=$('chatText').value.trim();
  if(!author||!content)return;
-
- $('chatButton').disabled=true;
- message($('chatStatus'),'Отправляем сообщение...');
-
+ $('chatButton').disabled=true;message($('chatStatus'),'Отправляем сообщение...');
  const {error}=await db.from('messages').insert({author,content});
- if(error){
- message($('chatStatus'),'Ошибка: '+error.message,true);
- }else{
- $('chatText').value='';
- message($('chatStatus'),'Сообщение отправлено! ❤️');
- await loadMessages();
- }
+ if(error)message($('chatStatus'),'Ошибка: '+error.message,true);
+ else{$('chatText').value='';message($('chatStatus'),'Сообщение отправлено! ❤️');await loadMessages();}
  $('chatButton').disabled=false;
 });
-
 $('chatMessages').addEventListener('click',async event=>{
  const id=event.target.closest('[data-delete-message]')?.dataset.deleteMessage;
  if(!id||!isAdmin)return;
  if(!confirm('Удалить это сообщение?'))return;
-
  const {error}=await db.from('messages').delete().eq('id',id);
- if(error){
- message($('loginStatus'),'Ошибка удаления: '+error.message,true);
- return;
- }
- message($('loginStatus'),'Сообщение удалено.');
- await loadMessages();
+ if(error){message($('loginStatus'),'Ошибка удаления: '+error.message,true);return;}
+ message($('loginStatus'),'Сообщение удалено.');await loadMessages();
 });
 
 // АДМИНКА
 $('loginForm').addEventListener('submit',async event=>{
  event.preventDefault();
- const email=$('email').value.trim();
- const password=$('password').value;
- $('loginButton').disabled=true;
- message($('loginStatus'),'Проверяем данные...');
-
+ const email=$('email').value.trim(),password=$('password').value;
+ $('loginButton').disabled=true;message($('loginStatus'),'Проверяем данные...');
  try{
  const {data,error}=await db.auth.signInWithPassword({email,password});
  if(error)throw error;
  await checkAdmin(data.session);
-
- if(!isAdmin){
- await db.auth.signOut();
- throw new Error('У этого аккаунта нет прав администратора.');
- }
+ if(!isAdmin){await db.auth.signOut();throw new Error('У этого аккаунта нет прав администратора.');}
  message($('loginStatus'),'Добро пожаловать, администратор!');
- $('loginForm').reset();
- await loadMessages();
- }catch(error){
- message($('loginStatus'),error.message,true);
- }finally{
- $('loginButton').disabled=false;
- }
+ $('loginForm').reset();await loadMessages();
+ }catch(error){message($('loginStatus'),error.message,true);}
+ finally{$('loginButton').disabled=false;}
 });
-
 $('logoutButton').addEventListener('click',async()=>{
- await db.auth.signOut();
- isAdmin=false;
- updateAdminUI();
- renderMessages();
- message($('loginStatus'),'Ты вышел из админ-панели.');
+ await db.auth.signOut();isAdmin=false;updateAdminUI();message($('loginStatus'),'Ты вышел из админ-панели.');
 });
-
-db.auth.onAuthStateChange((event,session)=>{
- checkAdmin(session);
-});
-
+db.auth.onAuthStateChange((event,session)=>{checkAdmin(session);});
 async function restoreSession(){
  const {data}=await db.auth.getSession();
  await checkAdmin(data.session);
 }
-
-// ПОИСК И ОБНОВЛЕНИЕ
 $('search').addEventListener('input',render);
-
-async function refreshAll(){
- await Promise.all([loadStories(),loadMessages()]);
-}
-
+async function refreshAll(){await Promise.all([loadStories(),loadMessages()]);}
 restoreSession();
 refreshAll();
 setInterval(refreshAll,10000);
