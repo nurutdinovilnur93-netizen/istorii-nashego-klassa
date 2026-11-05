@@ -18,7 +18,7 @@ main{width:min(900px,calc(100% - 28px));margin:26px auto 50px}
 h2{margin:0 0 16px}
 label{display:block;font-weight:bold;font-size:14px;margin:13px 0 7px}
 input,textarea,select{width:100%;padding:12px;border:1px solid #dfe2ee;border-radius:10px;font:inherit}
-textarea{min-height:115px;resize:vertical}
+textarea{min-height:100px;resize:vertical}
 button{border:0;border-radius:10px;padding:12px 17px;background:#6657e8;color:white;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.6;cursor:wait}
 .hint,.meta{font-size:12px;color:#68718a}
@@ -34,15 +34,33 @@ button:disabled{opacity:.6;cursor:wait}
 .story p{margin:0;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .empty{text-align:center;color:#68718a;padding:35px 15px;background:#ffffff9c;border-radius:16px}
 .delete{background:#fff0f0;color:#b43b48;padding:8px 11px;font-size:12px}
-.actions{display:flex;justify-content:flex-end;margin-top:13px}
-#status,#loginStatus{font-size:13px;line-height:1.5}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:13px;flex-wrap:wrap}
+#status,#loginStatus,#chatStatus{font-size:13px;line-height:1.5}
 .error{color:#b43b48}
 .success{color:#28734b}
 .admin{border:1px solid #dcd8ff}
 .admin h2{color:#5145cd}
 #adminArea{display:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.stat{background:#f3f2ff;border-radius:12px;padding:15px;text-align:center}
+.stat strong{display:block;font-size:25px;color:#5145cd;margin-bottom:5px}
+.stat span{font-size:12px;color:#68718a}
+.like{background:#fff0f3;color:#d34b68;padding:9px 12px}
+.like.liked{background:#d34b68;color:white}
+.chat-list{display:grid;gap:10px;max-height:380px;overflow-y:auto;margin:16px 0}
+.chat-message{background:#f5f5fc;padding:12px;border-radius:12px;overflow-wrap:anywhere}
+.chat-message strong{font-size:13px;color:#5145cd}
+.chat-message p{margin:7px 0;white-space:pre-wrap;line-height:1.5}
+.chat-message small{font-size:11px;color:#68718a}
+.chat-message .delete{float:right}
+.top-list{display:grid;gap:10px}
+.top-item{display:flex;align-items:center;gap:12px;background:#f5f5fc;padding:12px;border-radius:12px}
+.rank{font-size:22px;font-weight:bold;color:#6657e8;min-width:35px}
+.top-item div{min-width:0}
+.top-item strong{display:block;overflow-wrap:anywhere}
+.top-item small{color:#68718a}
 footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
-@media(max-width:560px){.panel,.story{padding:16px}.toolbar input{max-width:none}}
+@media(max-width:560px){.panel,.story{padding:16px}.toolbar input{max-width:none}.stats{grid-template-columns:1fr 1fr 1fr}.stat{padding:10px 5px}}
 </style>
 </head>
 <body>
@@ -75,30 +93,43 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 <label for="body">Текст истории</label>
 <textarea id="body" maxlength="1200" placeholder="Расскажи, что произошло..." required></textarea>
 
-<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px">
-<button id="submitButton" type="submit">Опубликовать историю</button>
-<span class="hint">До 1200 символов</span>
-</div>
-
-<div class="notice">
-Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и чужие секреты.
-</div>
+<button id="submitButton" type="submit" style="margin-top:14px">Опубликовать историю</button>
+<div class="notice">Публикуйте только добрые истории. Не указывайте телефоны, адреса, пароли и чужие секреты.</div>
 <p id="status"></p>
 </form>
 </section>
 
+<section class="panel">
+<h2>🏆 ТОП-10 историй</h2>
+<div id="topStories" class="top-list">
+<div class="empty">Загружаем рейтинг...</div>
+</div>
+</section>
+
+<section class="panel">
+<h2>💬 Общий чат класса</h2>
+<form id="chatForm">
+<label for="chatAuthor">Твоё имя</label>
+<input id="chatAuthor" maxlength="30" placeholder="Например, Ильнур" required>
+<label for="chatText">Сообщение</label>
+<textarea id="chatText" maxlength="1000" placeholder="Напиши что-нибудь классу..." required></textarea>
+<button id="chatButton" type="submit" style="margin-top:12px">Отправить сообщение</button>
+<p id="chatStatus"></p>
+</form>
+<div id="chatMessages" class="chat-list">
+<div class="empty">Загружаем чат...</div>
+</div>
+</section>
+
 <section class="panel admin">
 <h2>🔐 ADMIN ILNUR</h2>
-
 <div id="loginArea">
 <p>Вход только для администратора.</p>
 <form id="loginForm">
 <label for="email">Электронная почта</label>
 <input id="email" type="email" placeholder="Твоя почта" required>
-
 <label for="password">Пароль</label>
 <input id="password" type="password" placeholder="Пароль администратора" required>
-
 <button type="submit" id="loginButton" style="margin-top:14px">Войти в админ-панель</button>
 </form>
 <p id="loginStatus"></p>
@@ -106,6 +137,12 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 
 <div id="adminArea">
 <p>👑 Ты вошёл как администратор!</p>
+<div class="stats">
+<div class="stat"><strong id="storyCount">0</strong><span>Историй</span></div>
+<div class="stat"><strong id="messageCount">0</strong><span>Сообщений</span></div>
+<div class="stat"><strong id="likeCount">0</strong><span>Лайков</span></div>
+</div>
+<p>Теперь ты можешь удалять любые истории и сообщения.</p>
 <button id="logoutButton">Выйти из аккаунта</button>
 </div>
 </section>
@@ -114,236 +151,318 @@ footer{text-align:center;color:#68718a;font-size:12px;padding:0 15px 28px}
 <h2>🌟 Истории класса</h2>
 <input id="search" placeholder="Поиск по историям...">
 </div>
-
 <section id="stories" aria-live="polite">
 <div class="empty">Загружаем истории...</div>
 </section>
 
 </main>
-
 <footer>Истории нашего класса ❤️</footer>
 
 <script>
-const SUPABASE_URL = 'https://iluagtxeqfzzobrlpblq.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_IfQ0hxAPFjtJZ1d6RZhxbg_9VCgSejK';
+const SUPABASE_URL='https://iluagtxeqfzzobrlpblq.supabase.co';
+const SUPABASE_KEY='sb_publishable_IfQ0hxAPFjtJZ1d6RZhxbg_9VCgSejK';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const $=id=>document.getElementById(id);
+let stories=[];
+let messages=[];
+let likes={};
+let isAdmin=false;
 
-const form = document.getElementById('storyForm');
-const list = document.getElementById('stories');
-const search = document.getElementById('search');
-const statusBox = document.getElementById('status');
-const loginForm = document.getElementById('loginForm');
-const loginStatus = document.getElementById('loginStatus');
-
-let stories = [];
-let isAdmin = false;
-
-function esc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  }[c]));
+// Уникальный идентификатор браузера для лайков
+let voterId=localStorage.getItem('class_voter_id');
+if(!voterId){
+ voterId=crypto.randomUUID();
+ localStorage.setItem('class_voter_id',voterId);
 }
 
-function message(element, text, error=false) {
-  element.textContent = text;
-  element.className = error ? 'error' : 'success';
+function esc(value){
+ return String(value??'').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
 }
 
-function updateAdminUI() {
-  document.getElementById('loginArea').style.display =
-    isAdmin ? 'none' : 'block';
-
-  document.getElementById('adminArea').style.display =
-    isAdmin ? 'block' : 'none';
-
-  render();
+function message(element,text,error=false){
+ element.textContent=text;
+ element.className=error?'error':'success';
 }
 
-function render() {
-  const q = search.value.trim().toLowerCase();
-
-  const shown = stories.filter(s =>
-    [s.title,s.content,s.author,s.category]
-      .join(' ').toLowerCase().includes(q)
-  );
-
-  if (!shown.length) {
-    list.innerHTML = '<div class="empty">' +
-      (stories.length ? 'Ничего не найдено.' : 'Пока историй нет. Добавь первую!') +
-      '</div>';
-    return;
-  }
-
-  list.innerHTML = shown.map(s => `
-    <article class="story">
-      <div class="top">
-        <span class="tag">${esc(s.category)}</span>
-        <span class="meta">${esc(new Date(s.created_at).toLocaleString('ru-RU'))}</span>
-      </div>
-      <h3>${esc(s.title)}</h3>
-      <p>${esc(s.content)}</p>
-      <div class="meta" style="margin-top:13px">
-        Автор: ${esc(s.author || 'Анонимно')}
-      </div>
-      ${isAdmin ? `
-        <div class="actions">
-          <button class="delete" data-delete="${esc(s.id)}">🗑️ Удалить</button>
-        </div>
-      ` : ''}
-    </article>
-  `).join('');
+function updateAdminUI(){
+ $('loginArea').style.display=isAdmin?'none':'block';
+ $('adminArea').style.display=isAdmin?'block':'none';
+ render();
 }
 
-async function loadStories() {
-  try {
-    const {data,error} = await db
-      .from('stories')
-      .select('*')
-      .order('created_at',{ascending:false});
-
-    if (error) throw error;
-
-    stories = data || [];
-    render();
-  } catch(error) {
-    list.innerHTML = '<div class="empty">Не удалось загрузить истории.</div>';
-    message(statusBox,'Ошибка: '+error.message,true);
-  }
+async function checkAdmin(session){
+ isAdmin=!!(session?.user?.app_metadata?.role==='admin');
+ updateAdminUI();
 }
 
-async function checkAdmin(session) {
-  isAdmin = !!(
-    session &&
-    session.user &&
-    session.user.app_metadata &&
-    session.user.app_metadata.role === 'admin'
-  );
-  updateAdminUI();
+function render(){
+ const q=$('search').value.trim().toLowerCase();
+ const shown=stories.filter(s=>
+ [s.title,s.content,s.author,s.category].join(' ').toLowerCase().includes(q)
+ );
+
+ if(!shown.length){
+ $('stories').innerHTML='<div class="empty">'+
+ (stories.length?'Ничего не найдено.':'Пока историй нет. Добавь первую!')+
+ '</div>';
+ }else{
+ $('stories').innerHTML=shown.map(s=>{
+ const id=String(s.id);
+ const count=likes[id]?.count||0;
+ const liked=likes[id]?.liked||false;
+ return `
+ <article class="story">
+ <div class="top">
+ <span class="tag">${esc(s.category)}</span>
+ <span class="meta">${esc(new Date(s.created_at).toLocaleString('ru-RU'))}</span>
+ </div>
+ <h3>${esc(s.title)}</h3>
+ <p>${esc(s.content)}</p>
+ <div class="meta" style="margin-top:13px">Автор: ${esc(s.author||'Анонимно')}</div>
+ <div class="actions">
+ <button class="like ${liked?'liked':''}" data-like="${esc(id)}" ${liked?'disabled':''}>
+ ❤️ ${count}
+ </button>
+ ${isAdmin?`<button class="delete" data-delete-story="${esc(id)}">🗑️ Удалить</button>`:''}
+ </div>
+ </article>`;
+ }).join('');
+ }
+ renderTop();
+ updateStats();
 }
 
-loginForm.addEventListener('submit',async event => {
-  event.preventDefault();
+function renderTop(){
+ const sorted=[...stories].sort((a,b)=>
+ (likes[String(b.id)]?.count||0)-(likes[String(a.id)]?.count||0)
+ ).slice(0,10);
 
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+ if(!sorted.length){
+ $('topStories').innerHTML='<div class="empty">Пока нет историй.</div>';
+ return;
+ }
 
-  const button = document.getElementById('loginButton');
-  button.disabled = true;
-  message(loginStatus,'Проверяем данные...');
+ $('topStories').innerHTML=sorted.map((s,i)=>`
+ <div class="top-item">
+ <span class="rank">${i+1}</span>
+ <div>
+ <strong>${esc(s.title)}</strong>
+ <small>❤️ ${likes[String(s.id)]?.count||0} лайков</small>
+ </div>
+ </div>
+ `).join('');
+}
 
-  try {
-    const {data,error} = await db.auth.signInWithPassword({
-      email,
-      password
-    });
+function updateStats(){
+ $('storyCount').textContent=stories.length;
+ $('messageCount').textContent=messages.length;
+ $('likeCount').textContent=Object.values(likes).reduce((sum,x)=>sum+x.count,0);
+}
 
-    if (error) throw error;
+async function loadStories(){
+ const {data,error}=await db.from('stories').select('*').order('created_at',{ascending:false});
+ if(error){
+ $('stories').innerHTML='<div class="empty">Не удалось загрузить истории.</div>';
+ message($('status'),'Ошибка: '+error.message,true);
+ return;
+ }
+ stories=data||[];
+ await loadLikes();
+ render();
+}
 
-    await checkAdmin(data.session);
+async function loadLikes(){
+ const {data,error}=await db.from('story_likes').select('story_id,voter_id');
+ if(error){
+ console.error('Ошибка лайков:',error.message);
+ likes={};
+ return;
+ }
+ likes={};
+ (data||[]).forEach(row=>{
+ const id=String(row.story_id);
+ if(!likes[id])likes[id]={count:0,liked:false};
+ likes[id].count++;
+ if(row.voter_id===voterId)likes[id].liked=true;
+ });
+}
 
-    if (!isAdmin) {
-      await db.auth.signOut();
-      isAdmin = false;
-      updateAdminUI();
-      throw new Error('У этого аккаунта нет прав администратора.');
-    }
+async function addLike(id){
+ const current=likes[id];
+ if(current?.liked)return;
+ const button=document.querySelector(`[data-like="${CSS.escape(id)}"]`);
+ if(button)button.disabled=true;
 
-    message(loginStatus,'Добро пожаловать, администратор!');
-    loginForm.reset();
+ const {error}=await db.from('story_likes').upsert(
+ {story_id:id,voter_id:voterId},
+ {onConflict:'story_id,voter_id',ignoreDuplicates:true}
+ );
 
-  } catch(error) {
-    message(loginStatus,error.message,true);
-  } finally {
-    button.disabled = false;
-  }
+ if(error){
+ alert('Не удалось поставить лайк: '+error.message);
+ if(button)button.disabled=false;
+ return;
+ }
+ await loadLikes();
+ render();
+}
+
+$('stories').addEventListener('click',async event=>{
+ const likeId=event.target.closest('[data-like]')?.dataset.like;
+ if(likeId){await addLike(likeId);return;}
+
+ const id=event.target.closest('[data-delete-story]')?.dataset.deleteStory;
+ if(!id||!isAdmin)return;
+ if(!confirm('Точно удалить эту историю?'))return;
+
+ const {error}=await db.from('stories').delete().eq('id',id);
+ if(error){message($('loginStatus'),'Ошибка удаления: '+error.message,true);return;}
+ message($('loginStatus'),'История удалена.');
+ await loadStories();
 });
 
-document.getElementById('logoutButton').addEventListener('click',async()=>{
-  await db.auth.signOut();
-  isAdmin = false;
-  updateAdminUI();
-  message(loginStatus,'Ты вышел из админ-панели.');
+$('storyForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ const title=$('title').value.trim();
+ const content=$('body').value.trim();
+ const author=$('author').value.trim();
+ const category=$('category').value;
+ if(!title||!content)return;
+
+ $('submitButton').disabled=true;
+ message($('status'),'Публикуем историю...');
+
+ const {error}=await db.from('stories').insert({title,content,author,category});
+ if(error){
+ message($('status'),'Ошибка публикации: '+error.message,true);
+ }else{
+ $('storyForm').reset();
+ message($('status'),'История опубликована! ❤️');
+ await loadStories();
+ }
+ $('submitButton').disabled=false;
 });
 
-db.auth.onAuthStateChange(async(event,session)=>{
-  await checkAdmin(session);
-});
-
-async function restoreSession() {
-  const {data} = await db.auth.getSession();
-  await checkAdmin(data.session);
+// ЧАТ
+async function loadMessages(){
+ const {data,error}=await db.from('messages').select('*').order('created_at',{ascending:false}).limit(100);
+ if(error){
+ $('chatMessages').innerHTML='<div class="empty">Не удалось загрузить чат.</div>';
+ console.error(error.message);
+ return;
+ }
+ messages=data||[];
+ renderMessages();
+ updateStats();
 }
 
-form.addEventListener('submit',async event=>{
-  event.preventDefault();
+function renderMessages(){
+ if(!messages.length){
+ $('chatMessages').innerHTML='<div class="empty">Пока сообщений нет. Напиши первым!</div>';
+ return;
+ }
 
-  const title = document.getElementById('title').value.trim();
-  const content = document.getElementById('body').value.trim();
-  const author = document.getElementById('author').value.trim();
-  const category = document.getElementById('category').value;
+ $('chatMessages').innerHTML=messages.map(m=>`
+ <div class="chat-message">
+ ${isAdmin?`<button class="delete" data-delete-message="${esc(m.id)}">Удалить</button>`:''}
+ <strong>${esc(m.author)}</strong>
+ <p>${esc(m.content)}</p>
+ <small>${esc(new Date(m.created_at).toLocaleString('ru-RU'))}</small>
+ </div>
+ `).join('');
+}
 
-  if (!title || !content) return;
+$('chatForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ const author=$('chatAuthor').value.trim();
+ const content=$('chatText').value.trim();
+ if(!author||!content)return;
 
-  const button = document.getElementById('submitButton');
-  button.disabled = true;
-  message(statusBox,'Публикуем историю...');
+ $('chatButton').disabled=true;
+ message($('chatStatus'),'Отправляем сообщение...');
 
-  try {
-    const {error} = await db.from('stories').insert({
-      title,
-      content,
-      author,
-      category
-    });
-
-    if (error) throw error;
-
-    form.reset();
-    message(statusBox,'История опубликована! ❤️');
-    await loadStories();
-
-  } catch(error) {
-    message(statusBox,'Ошибка публикации: '+error.message,true);
-  } finally {
-    button.disabled = false;
-  }
+ const {error}=await db.from('messages').insert({author,content});
+ if(error){
+ message($('chatStatus'),'Ошибка: '+error.message,true);
+ }else{
+ $('chatText').value='';
+ message($('chatStatus'),'Сообщение отправлено! ❤️');
+ await loadMessages();
+ }
+ $('chatButton').disabled=false;
 });
 
-list.addEventListener('click',async event=>{
-  const id = event.target.dataset.delete;
-  if (!id || !isAdmin) return;
+$('chatMessages').addEventListener('click',async event=>{
+ const id=event.target.closest('[data-delete-message]')?.dataset.deleteMessage;
+ if(!id||!isAdmin)return;
+ if(!confirm('Удалить это сообщение?'))return;
 
-  if (!confirm('Точно удалить эту историю?')) return;
-
-  try {
-    const {error} = await db
-      .from('stories')
-      .delete()
-      .eq('id',id);
-
-    if (error) throw error;
-
-    message(loginStatus,'История удалена.');
-    await loadStories();
-
-  } catch(error) {
-    message(loginStatus,'Ошибка удаления: '+error.message,true);
-  }
+ const {error}=await db.from('messages').delete().eq('id',id);
+ if(error){
+ message($('loginStatus'),'Ошибка удаления: '+error.message,true);
+ return;
+ }
+ message($('loginStatus'),'Сообщение удалено.');
+ await loadMessages();
 });
 
-search.addEventListener('input',render);
+// АДМИНКА
+$('loginForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ const email=$('email').value.trim();
+ const password=$('password').value;
+ $('loginButton').disabled=true;
+ message($('loginStatus'),'Проверяем данные...');
+
+ try{
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+ if(error)throw error;
+ await checkAdmin(data.session);
+
+ if(!isAdmin){
+ await db.auth.signOut();
+ throw new Error('У этого аккаунта нет прав администратора.');
+ }
+ message($('loginStatus'),'Добро пожаловать, администратор!');
+ $('loginForm').reset();
+ await loadMessages();
+ }catch(error){
+ message($('loginStatus'),error.message,true);
+ }finally{
+ $('loginButton').disabled=false;
+ }
+});
+
+$('logoutButton').addEventListener('click',async()=>{
+ await db.auth.signOut();
+ isAdmin=false;
+ updateAdminUI();
+ renderMessages();
+ message($('loginStatus'),'Ты вышел из админ-панели.');
+});
+
+db.auth.onAuthStateChange((event,session)=>{
+ checkAdmin(session);
+});
+
+async function restoreSession(){
+ const {data}=await db.auth.getSession();
+ await checkAdmin(data.session);
+}
+
+// ПОИСК И ОБНОВЛЕНИЕ
+$('search').addEventListener('input',render);
+
+async function refreshAll(){
+ await Promise.all([loadStories(),loadMessages()]);
+}
 
 restoreSession();
-loadStories();
-setInterval(loadStories,10000);
+refreshAll();
+setInterval(refreshAll,10000);
 </script>
 </body>
 </html>
